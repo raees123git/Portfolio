@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Github, Linkedin, Mail } from "lucide-react";
 import heroImage from "@/assets/hero-neural-bg.jpg";
-import { useTypewriter } from "@/hooks/useTypewriter";
+import { useTypewriter, useMultiTypewriter } from "@/hooks/useTypewriter";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Hero = () => {
@@ -11,10 +11,17 @@ const Hero = () => {
     delay: 500
   });
   
-  const { displayText: subText, isComplete: subComplete } = useTypewriter({ 
-    text: "Building the Future with Artificial Intelligence", 
+  const { displayText: subText, isTyping: subTyping } = useMultiTypewriter({ 
+    texts: [
+      "Building the Future with Artificial Intelligence",
+      "Specializing in Machine Learning & Deep Learning", 
+      "Creating Intelligent Solutions for Real Problems",
+      "Passionate about Generative AI & LangChain",
+      "Transforming Ideas into Smart Applications"
+    ],
     speed: 50,
-    delay: 2000
+    delay: 2500,
+    pauseDuration: 3000
   });
 
   const { ref: contentRef, isVisible: contentVisible } = useScrollAnimation({ delay: 500 });
@@ -34,17 +41,17 @@ const Hero = () => {
             {mainText}
             <span className={`inline-block w-0.5 h-16 bg-primary ml-1 ${mainComplete ? 'opacity-0' : 'animate-blink'}`}>|</span>
           </h1>
-          <h2 className={`text-2xl md:text-3xl font-light mb-4 text-foreground/90 transition-all duration-500 ${subComplete ? 'opacity-100' : 'opacity-0'}`}>
+          <h2 className={`text-2xl md:text-3xl font-light mb-4 text-foreground/90 transition-all duration-500 ${mainComplete ? 'opacity-100' : 'opacity-0'}`}>
             {subText}
-            <span className={`inline-block w-0.5 h-6 bg-primary ml-1 ${subComplete ? 'opacity-0' : 'animate-blink'}`}>|</span>
+            <span className={`inline-block w-0.5 h-6 bg-primary ml-1 ${mainComplete ? 'animate-blink' : 'opacity-0'}`}>|</span>
           </h2>
-          <p className={`text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-1000 ${subComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+          <p className={`text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-1000 ${mainComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
             Final year AI student passionate about Machine Learning, Deep Learning,
             and Generative AI. Crafting intelligent solutions with cutting-edge technology.
           </p>
         </div>
 
-        <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 transition-all duration-700 delay-1500 ${subComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 transition-all duration-700 delay-1500 ${mainComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <Button
             size="lg"
             asChild
@@ -71,7 +78,7 @@ const Hero = () => {
         </div>
 
         {/* Social Links */}
-        <div className={`flex justify-center gap-6 mb-12 transition-all duration-700 delay-2000 ${subComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`flex justify-center gap-6 mb-12 transition-all duration-700 delay-2000 ${mainComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <a
             href="https://github.com/raees123git"
             target="_blank"
