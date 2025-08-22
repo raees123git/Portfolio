@@ -1,6 +1,11 @@
 import { GraduationCap, Target, Lightbulb, Rocket } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const About = () => {
+  const { ref: sectionRef, isVisible: sectionVisible } = useScrollAnimation({ threshold: 0.3 });
+  const { ref: titleRef, isVisible: titleVisible } = useScrollAnimation({ threshold: 0.5 });
+  const { ref: cardsRef, isVisible: cardsVisible } = useScrollAnimation({ threshold: 0.2, delay: 300 });
+
   const highlights = [
     {
       icon: GraduationCap,
@@ -25,11 +30,11 @@ const About = () => {
   ];
 
   return (
-    <section className="py-20 px-4 bg-background">
+    <section ref={sectionRef} className="py-20 px-4 bg-background">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Side - Content */}
-          <div>
+          <div ref={titleRef} className={`transition-all duration-800 ${titleVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
               About Me
             </h2>
@@ -48,12 +53,16 @@ const About = () => {
           </div>
           
           {/* Right Side - Highlights */}
-          <div className="space-y-6">
+          <div ref={cardsRef} className="space-y-6">
             {highlights.map((item, index) => (
               <div 
                 key={item.title}
-                className="glow-card rounded-xl p-6 group"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className={`glow-card rounded-xl p-6 group transition-all duration-600 ${
+                  cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
+                }`}
+                style={{ 
+                  transitionDelay: cardsVisible ? `${index * 150}ms` : '0ms'
+                }}
               >
                 <div className="flex items-start space-x-4">
                   <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 flex-shrink-0">
