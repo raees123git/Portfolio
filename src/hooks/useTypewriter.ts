@@ -45,6 +45,7 @@ export const useTypewriter = ({ text, speed = 50, delay = 0 }: UseTypewriterProp
   return { displayText, isComplete };
 };
 
+// FIXED VERSION of your useMultiTypewriter hook
 export const useMultiTypewriter = ({ 
   texts, 
   speed = 50, 
@@ -70,8 +71,8 @@ export const useMultiTypewriter = ({
       // Type the text
       let charIndex = 0;
       const typeText = () => {
-        if (charIndex <= currentText.length) {
-          setDisplayText(currentText.slice(0, charIndex));
+        if (charIndex < currentText.length) { // FIXED: Changed <= to <
+          setDisplayText(currentText.slice(0, charIndex + 1)); // FIXED: Added +1
           charIndex++;
           typeTimeout = setTimeout(typeText, speed);
         } else {
@@ -79,12 +80,13 @@ export const useMultiTypewriter = ({
           pauseTimeout = setTimeout(() => {
             let deleteIndex = currentText.length;
             const deleteText = () => {
-              if (deleteIndex >= 0) {
-                setDisplayText(currentText.slice(0, deleteIndex));
+              if (deleteIndex > 0) { // FIXED: Changed >= to >
                 deleteIndex--;
+                setDisplayText(currentText.slice(0, deleteIndex));
                 deleteTimeout = setTimeout(deleteText, speed / 2);
               } else {
                 // Move to next text
+                setDisplayText(''); // FIXED: Clear display text
                 cycleTimeout = setTimeout(() => {
                   setCurrentIndex((prev) => (prev + 1) % texts.length);
                 }, 200);
