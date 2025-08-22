@@ -53,62 +53,65 @@ export const useMultiTypewriter = ({
 }: UseMultiTypewriterProps) => {
   const [displayText, setDisplayText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTyping, setIsTyping] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    
+    if (texts.length === 0) return;
+
+    let typeTimeout: NodeJS.Timeout;
+    let pauseTimeout: NodeJS.Timeout;
+    let deleteTimeout: NodeJS.Timeout;
+    let cycleTimeout: NodeJS.Timeout;
+
     const startCycle = () => {
+      setIsVisible(true);
       const currentText = texts[currentIndex];
       
-      if (!isTyping && !isDeleting) {
-        setIsTyping(true);
-        typeText(currentText);
-      }
-    };
-
-    const typeText = (text: string) => {
-      let i = 0;
-      const type = () => {
-        if (i < text.length) {
-          setDisplayText(text.slice(0, i + 1));
-          i++;
-          timeout = setTimeout(type, speed);
+      // Type the text
+      let charIndex = 0;
+      const typeText = () => {
+        if (charIndex <= currentText.length) {
+          setDisplayText(currentText.slice(0, charIndex));
+          charIndex++;
+          typeTimeout = setTimeout(typeText, speed);
         } else {
-          setIsTyping(false);
-          timeout = setTimeout(() => {
-            setIsDeleting(true);
+          // Pause, then delete
+          pauseTimeout = setTimeout(() => {
+            let deleteIndex = currentText.length;
+            const deleteText = () => {
+              if (deleteIndex >= 0) {
+                setDisplayText(currentText.slice(0, deleteIndex));
+                deleteIndex--;
+                deleteTimeout = setTimeout(deleteText, speed / 2);
+              } else {
+                // Move to next text
+                cycleTimeout = setTimeout(() => {
+                  setCurrentIndex((prev) => (prev + 1) % texts.length);
+                }, 200);
+              }
+            };
             deleteText();
           }, pauseDuration);
         }
       };
-      type();
+      
+      typeText();
     };
 
-    const deleteText = () => {
-      const currentText = texts[currentIndex];
-      let i = currentText.length;
-      const deleteChar = () => {
-        if (i > 0) {
-          setDisplayText(currentText.slice(0, i - 1));
-          i--;
-          timeout = setTimeout(deleteChar, speed / 2);
-        } else {
-          setIsDeleting(false);
-          setCurrentIndex((prev) => (prev + 1) % texts.length);
-        }
-      };
-      deleteChar();
-    };
-
-    const delayTimeout = setTimeout(startCycle, delay);
+    const initialDelay = setTimeout(startCycle, delay);
 
     return () => {
-      clearTimeout(timeout);
-      clearTimeout(delayTimeout);
+      clearTimeout(typeTimeout);
+      clearTimeout(pauseTimeout);
+      clearTimeout(deleteTimeout);
+      clearTimeout(cycleTimeout);
+      clearTimeout(initialDelay);
     };
-  }, [texts, currentIndex, isTyping, isDeleting, speed, delay, pauseDuration]);
+  }, [currentIndex, texts, speed, delay, pauseDuration]);
 
-  return { displayText, currentIndex, isTyping: isTyping || isDeleting };
+  return { 
+    displayText, 
+    currentIndex, 
+    isTyping: isVisible 
+  };
 };
