@@ -20,8 +20,8 @@ const Hero = () => {
       "Transforming Ideas into Smart Applications"
     ],
     speed: 50,
-    delay: 2500,
-    pauseDuration: 3000
+    delay: 50,
+    pauseDuration: 2000
   });
 
   const { ref: contentRef, isVisible: contentVisible } = useScrollAnimation({ delay: 500 });

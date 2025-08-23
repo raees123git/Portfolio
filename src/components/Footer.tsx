@@ -75,11 +75,6 @@ const Footer = () => {
           <p className="text-muted-foreground text-sm mb-4 md:mb-0">
             © 2024 AI Developer Portfolio. All rights reserved.
           </p>
-          <div className="flex items-center text-muted-foreground text-sm">
-            <span>Made with</span>
-            <Heart className="w-4 h-4 mx-1 text-red-500" />
-            <span>and lots of coffee</span>
-          </div>
         </div>
       </div>
     </footer>

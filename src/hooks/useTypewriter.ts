@@ -46,74 +46,50 @@ export const useTypewriter = ({ text, speed = 50, delay = 0 }: UseTypewriterProp
 };
 
 // FIXED VERSION of your useMultiTypewriter hook
-export const useMultiTypewriter = ({ 
-  texts, 
-  speed = 50, 
-  delay = 0, 
-  pauseDuration = 2000 
+interface UseMultiTypewriterProps {
+  texts: string[];
+  speed?: number;          // typing speed per character
+  delay?: number;          // initial delay before starting
+  pauseDuration?: number;  // wait time after finishing a word
+}
+
+export const useMultiTypewriter = ({
+  texts,
+  speed = 50,
+  delay = 0,
+  pauseDuration = 1500,
 }: UseMultiTypewriterProps) => {
-  const [displayText, setDisplayText] = useState('');
+  const [displayText, setDisplayText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (texts.length === 0) return;
+    const currentText = texts[currentIndex];
+    let timer: NodeJS.Timeout;
 
-    let typeTimeout: NodeJS.Timeout;
-    let pauseTimeout: NodeJS.Timeout;
-    let deleteTimeout: NodeJS.Timeout;
-    let cycleTimeout: NodeJS.Timeout;
-
-    const startCycle = () => {
-      setIsVisible(true);
-      const currentText = texts[currentIndex];
-      
-      // Type the text
-      let charIndex = 0;
-      const typeText = () => {
-        if (charIndex < currentText.length) { // FIXED: Changed <= to <
-          setDisplayText(currentText.slice(0, charIndex + 1)); // FIXED: Added +1
-          charIndex++;
-          typeTimeout = setTimeout(typeText, speed);
-        } else {
-          // Pause, then delete
-          pauseTimeout = setTimeout(() => {
-            let deleteIndex = currentText.length;
-            const deleteText = () => {
-              if (deleteIndex > 0) { // FIXED: Changed >= to >
-                deleteIndex--;
-                setDisplayText(currentText.slice(0, deleteIndex));
-                deleteTimeout = setTimeout(deleteText, speed / 2);
-              } else {
-                // Move to next text
-                setDisplayText(''); // FIXED: Clear display text
-                cycleTimeout = setTimeout(() => {
-                  setCurrentIndex((prev) => (prev + 1) % texts.length);
-                }, 200);
-              }
-            };
-            deleteText();
-          }, pauseDuration);
-        }
-      };
-      
-      typeText();
+    const handleTyping = () => {
+      if (!isDeleting && displayText.length < currentText.length) {
+        // typing forward
+        setDisplayText(currentText.slice(0, displayText.length + 1));
+        timer = setTimeout(handleTyping, speed);
+      } else if (!isDeleting && displayText.length === currentText.length) {
+        // pause before deleting
+        timer = setTimeout(() => setIsDeleting(true), pauseDuration);
+      } else if (isDeleting && displayText.length > 0) {
+        // deleting
+        setDisplayText(currentText.slice(0, displayText.length - 1));
+        timer = setTimeout(handleTyping, speed );
+      } else if (isDeleting && displayText.length === 0) {
+        // move to next word
+        setIsDeleting(false); 
+        setCurrentIndex((prev) => (prev + 1) % texts.length);
+      }
     };
 
-    const initialDelay = setTimeout(startCycle, delay);
+    timer = setTimeout(handleTyping, delay);
 
-    return () => {
-      clearTimeout(typeTimeout);
-      clearTimeout(pauseTimeout);
-      clearTimeout(deleteTimeout);
-      clearTimeout(cycleTimeout);
-      clearTimeout(initialDelay);
-    };
-  }, [currentIndex, texts, speed, delay, pauseDuration]);
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, texts, currentIndex, speed, pauseDuration, delay]);
 
-  return { 
-    displayText, 
-    currentIndex, 
-    isTyping: isVisible 
-  };
+  return { displayText, isTyping: !isDeleting };
 };
